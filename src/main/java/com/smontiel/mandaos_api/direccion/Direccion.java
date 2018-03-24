@@ -13,6 +13,7 @@ public class Direccion {
     @JsonProperty("numero_exterior")
     public String numeroExterior;
     public String colonia;
+    @JsonProperty("codigo_postal")
     public int codigoPostal;
     public String localidad;
     public String estado;
