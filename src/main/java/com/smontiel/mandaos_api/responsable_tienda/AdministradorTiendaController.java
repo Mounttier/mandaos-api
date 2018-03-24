@@ -19,7 +19,7 @@ public class AdministradorTiendaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AdministradorTienda> getAdministradorTienda(@PathVariable String id) {
-        String query = "select * from responsable_tienda d where id = " + id + ";";
+        String query = "select * from administrador_tienda where id = " + id + ";";
         AdministradorTienda response = db.one(query, rs -> {
             AdministradorTienda d = new AdministradorTienda();
             d.id = rs.getLong("id");
@@ -40,7 +40,7 @@ public class AdministradorTiendaController {
 
     @PostMapping("")
     public ResponseEntity<AdministradorTienda> createAdministradorTienda(@RequestBody AdministradorTienda rt) {
-        String query = "INSERT INTO responsable_tienda "
+        String query = "INSERT INTO administrador_tienda "
                 + "(nombre, apellido_paterno, apellido_materno, url_foto, telefono, e_mail) "
                 + "VALUES('" + rt.nombre + "', '" + rt.apellidoPaterno + "', '" + rt.apellidoMaterno + "', '"
                 + rt.urlFoto + "', '" + rt.telefono + "', '" + rt.email
@@ -56,7 +56,7 @@ public class AdministradorTiendaController {
 
     @GetMapping("")
     public ResponseEntity<List<AdministradorTienda>> getAdministradoresDeTienda() {
-        String query = "SELECT * FROM responsable_tienda";
+        String query = "SELECT * FROM administrador_tienda";
         List<AdministradorTienda> response = db.any(query, (rs) -> {
             AdministradorTienda d = new AdministradorTienda();
             d.id = rs.getLong("id");
