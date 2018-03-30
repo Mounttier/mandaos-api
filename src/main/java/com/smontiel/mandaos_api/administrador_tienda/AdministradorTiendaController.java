@@ -1,5 +1,6 @@
 package com.smontiel.mandaos_api.responsable_tienda;
 
+import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,22 +21,27 @@ public class AdministradorTiendaController {
     @GetMapping("/{id}")
     public ResponseEntity<AdministradorTienda> getAdministradorTienda(@PathVariable String id) {
         String query = "select * from administrador_tienda where id = " + id + ";";
-        AdministradorTienda response = db.one(query, rs -> {
-            AdministradorTienda d = new AdministradorTienda();
-            d.id = rs.getLong("id");
-            d.nombre = rs.getString("nombre");
-            d.apellidoPaterno = rs.getString("apellido_paterno");
-            d.apellidoMaterno = rs.getString("apellido_materno");
-            d.urlFoto = rs.getString("url_foto");
-            d.telefono = rs.getString("telefono");
-            d.email = rs.getString("e_mail");
-            d.createdAt = rs.getString("created_at");
-            d.updatedAt = rs.getString("updated_at");
+        try {
+            AdministradorTienda response = db.one(query, rs -> {
+                AdministradorTienda d = new AdministradorTienda();
+                d.id = rs.getLong("id");
+                d.nombre = rs.getString("nombre");
+                d.apellidoPaterno = rs.getString("apellido_paterno");
+                d.apellidoMaterno = rs.getString("apellido_materno");
+                d.urlFoto = rs.getString("url_foto");
+                d.telefono = rs.getString("telefono");
+                d.email = rs.getString("e_mail");
+                d.createdAt = rs.getString("created_at");
+                d.updatedAt = rs.getString("updated_at");
 
-            return d;
-        });
+                return d;
+            });
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new EntityNotFoundException(e.getCause());
+        }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     @PostMapping("")
