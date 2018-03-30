@@ -1,5 +1,6 @@
 package com.smontiel.mandaos_api.direccion;
 
+import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,24 +20,28 @@ public class DireccionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Direccion> getDireccion(@PathVariable String id) {
-        String query = "select * from direccion where id = " + id + ";";
-        Direccion response = db.one(query, rs -> {
-            Direccion d = new Direccion();
-            d.id = rs.getLong("id");
-            d.calle = rs.getString("calle");
-            d.numeroInterior = rs.getString("numero_interior");
-            d.numeroExterior = rs.getString("numero_exterior");
-            d.colonia = rs.getString("colonia");
-            d.codigoPostal = rs.getInt("codigo_postal");
-            d.localidad = rs.getString("localidad");
-            d.estado = rs.getString("estado");
-            d.createdAt = rs.getString("created_at");
-            d.updatedAt = rs.getString("updated_at");
+        try {
+            String query = "select * from direccion where id = " + id + ";";
+            Direccion response = db.one(query, rs -> {
+                Direccion d = new Direccion();
+                d.id = rs.getLong("id");
+                d.calle = rs.getString("calle");
+                d.numeroInterior = rs.getString("numero_interior");
+                d.numeroExterior = rs.getString("numero_exterior");
+                d.colonia = rs.getString("colonia");
+                d.codigoPostal = rs.getInt("codigo_postal");
+                d.localidad = rs.getString("localidad");
+                d.estado = rs.getString("estado");
+                d.createdAt = rs.getString("created_at");
+                d.updatedAt = rs.getString("updated_at");
 
-            return d;
-        });
+                return d;
+            });
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new EntityNotFoundException(e.getCause());
+        }
     }
 
     @PostMapping("")

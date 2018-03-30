@@ -1,14 +1,14 @@
 package com.smontiel.mandaos_api.administrador_tienda;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.smontiel.mandaos_api.usuario.UsuarioResponse;
 
 /**
- * Created by Salvador Montiel on 23/mar/2018.
+ * Created by Salvador Montiel on 30/mar/2018.
  */
-public class AdministradorTienda {
+public class AdministradorTiendaResponse {
     public Long id;
-    @JsonProperty("id_usuario")
-    public Long idUsuario;
+    public UsuarioResponse usuario;
     public String telefono;
 
     @JsonProperty("created_at")

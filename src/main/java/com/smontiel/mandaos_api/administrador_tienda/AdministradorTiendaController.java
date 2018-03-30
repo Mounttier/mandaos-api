@@ -1,12 +1,16 @@
-package com.smontiel.mandaos_api.responsable_tienda;
+package com.smontiel.mandaos_api.administrador_tienda;
 
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
+import com.smontiel.mandaos_api.error.FieldCollisionException;
+import com.smontiel.mandaos_api.usuario.UsuarioController;
 import com.smontiel.simple_jdbc.SimpleJDBC;
+import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -15,22 +19,20 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/administrador-tienda")
 public class AdministradorTiendaController {
-    @Autowired
-    SimpleJDBC db;
+    @Autowired SimpleJDBC db;
+    @Autowired UsuarioController usuarioController;
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdministradorTienda> getAdministradorTienda(@PathVariable String id) {
+    public ResponseEntity<AdministradorTiendaResponse> getAdministradorTienda(@PathVariable String id) {
         String query = "select * from administrador_tienda where id = " + id + ";";
         try {
-            AdministradorTienda response = db.one(query, rs -> {
-                AdministradorTienda d = new AdministradorTienda();
+            AdministradorTiendaResponse response = db.one(query, rs -> {
+                AdministradorTiendaResponse d = new AdministradorTiendaResponse();
                 d.id = rs.getLong("id");
-                d.nombre = rs.getString("nombre");
-                d.apellidoPaterno = rs.getString("apellido_paterno");
-                d.apellidoMaterno = rs.getString("apellido_materno");
-                d.urlFoto = rs.getString("url_foto");
+                String idUsuario = rs.getString("id_usuario");
+                d.usuario = usuarioController.getUsuario(idUsuario).getBody();
                 d.telefono = rs.getString("telefono");
-                d.email = rs.getString("e_mail");
+
                 d.createdAt = rs.getString("created_at");
                 d.updatedAt = rs.getString("updated_at");
 
@@ -40,18 +42,29 @@ public class AdministradorTiendaController {
         } catch (Exception e) {
             throw new EntityNotFoundException(e.getCause());
         }
-
-
     }
 
     @PostMapping("")
-    public ResponseEntity<AdministradorTienda> createAdministradorTienda(@RequestBody AdministradorTienda rt) {
+    public ResponseEntity<AdministradorTiendaResponse> createAdministradorTienda(@RequestBody AdministradorTienda rt) {
+        String adminExists = "SELECT id, id_usuario, telefono FROM administrador_tienda "
+                + "WHERE id_usuario = '" + rt.idUsuario
+                + "' AND telefono = '" + rt.telefono + "'";
+        AdministradorTienda at = db.oneOrNone(adminExists, new ThrowingFunction<ResultSet, AdministradorTienda>() {
+            @Override
+            public AdministradorTienda apply(ResultSet rs) throws Exception {
+                AdministradorTienda a = new AdministradorTienda();
+                a.id = rs.getLong("id");
+                a.telefono = rs.getString("telefono");
+                return a;
+            }
+        });
+        if (at != null) return getAdministradorTienda(String.valueOf(at.id));
+
         String query = "INSERT INTO administrador_tienda "
-                + "(nombre, apellido_paterno, apellido_materno, url_foto, telefono, e_mail) "
-                + "VALUES('" + rt.nombre + "', '" + rt.apellidoPaterno + "', '" + rt.apellidoMaterno + "', '"
-                + rt.urlFoto + "', '" + rt.telefono + "', '" + rt.email
+                + "(id_usuario, telefono) "
+                + "VALUES('" + rt.idUsuario + "', '" + rt.telefono
                 + "') RETURNING id";
-        ResponseEntity<AdministradorTienda> response = db.one(query, (rs) -> {
+        ResponseEntity<AdministradorTiendaResponse> response = db.one(query, (rs) -> {
             Long id = rs.getLong("id");
 
             return getAdministradorTienda(String.valueOf(id));
@@ -61,17 +74,15 @@ public class AdministradorTiendaController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<AdministradorTienda>> getAdministradoresDeTienda() {
+    public ResponseEntity<List<AdministradorTiendaResponse>> getAdministradoresDeTienda() {
         String query = "SELECT * FROM administrador_tienda";
-        List<AdministradorTienda> response = db.any(query, (rs) -> {
-            AdministradorTienda d = new AdministradorTienda();
+        List<AdministradorTiendaResponse> response = db.any(query, (rs) -> {
+            AdministradorTiendaResponse d = new AdministradorTiendaResponse();
             d.id = rs.getLong("id");
-            d.nombre = rs.getString("nombre");
-            d.apellidoPaterno = rs.getString("apellido_paterno");
-            d.apellidoMaterno = rs.getString("apellido_materno");
-            d.urlFoto = rs.getString("url_foto");
+            String idUsuario = rs.getString("id_usuario");
+            d.usuario = usuarioController.getUsuario(idUsuario).getBody();
             d.telefono = rs.getString("telefono");
-            d.email = rs.getString("e_mail");
+
             d.createdAt = rs.getString("created_at");
             d.updatedAt = rs.getString("updated_at");
 
