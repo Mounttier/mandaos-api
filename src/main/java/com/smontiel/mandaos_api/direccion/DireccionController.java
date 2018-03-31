@@ -1,12 +1,15 @@
 package com.smontiel.mandaos_api.direccion;
 
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
+import com.smontiel.mandaos_api.tienda.Tienda;
 import com.smontiel.simple_jdbc.SimpleJDBC;
+import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -46,6 +49,21 @@ public class DireccionController {
 
     @PostMapping("")
     public ResponseEntity<Direccion> createDireccion(@RequestBody Direccion d) {
+        String direccionExists = "SELECT id FROM direccion "
+                + "WHERE calle = '" + d.calle + "' "
+                + "AND numero_interior = '" + d.numeroInterior + "' "
+                + "AND numero_exterior = '" + d.numeroExterior + "' "
+                + "AND colonia = '" + d.colonia+ "' "
+                + "AND codigo_postal = '" + d.codigoPostal + "' "
+                + "AND localidad = '" + d.localidad + "' "
+                + "AND estado = '" + d.estado + "'";
+        Direccion at = db.oneOrNone(direccionExists, rs -> {
+            Direccion a = new Direccion();
+            a.id = rs.getLong("id");
+            return a;
+        });
+        if (at != null) return getDireccion(String.valueOf(at.id));
+
         String query = "INSERT INTO direccion "
                 + "(calle, numero_interior, numero_exterior, colonia, codigo_postal, localidad, estado) "
                 + "VALUES('" + d.calle + "', '" + d.numeroInterior + "', '" + d.numeroExterior + "', '"
