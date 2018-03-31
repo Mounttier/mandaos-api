@@ -2,6 +2,8 @@ package com.smontiel.mandaos_api.direccion;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.Size;
+
 /**
  * Created by Salvador Montiel on 23/mar/2018.
  */
@@ -14,6 +16,7 @@ public class Direccion {
     public String numeroExterior;
     public String colonia;
     @JsonProperty("codigo_postal")
+    @Size(min = 5, max = 5)
     public int codigoPostal;
     public String localidad;
     public String estado;

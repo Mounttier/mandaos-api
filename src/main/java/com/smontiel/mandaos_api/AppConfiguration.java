@@ -13,11 +13,9 @@ public class AppConfiguration {
 
     @Bean
     public SimpleJDBC simpleJDBC() {
+        String url = System.getenv("MANDAOS_POSTGRESQL_URL");
         PGSimpleDataSource ds = new PGSimpleDataSource();
-        ds.setDatabaseName("mandaos");
-        ds.setPassword("6283");
-        ds.setUser("postgres");
-        ds.setPortNumber(5432);
+        ds.setURL(url);
 
         return SimpleJDBC.from(ds);
     }
