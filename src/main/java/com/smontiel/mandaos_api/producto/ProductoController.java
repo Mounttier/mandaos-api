@@ -1,7 +1,6 @@
 package com.smontiel.mandaos_api.producto;
 
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
-import com.smontiel.mandaos_api.tienda.Tienda;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,9 @@ public class ProductoController {
     @GetMapping("/{id}")
     public ResponseEntity<Producto> getProducto(@PathVariable String id) {
         try {
-            String query = "select * from producto where id = '" + id + "';";
+            String query = "SELECT p.id, p.codigo_barras, p.nombre, p.descripcion, p.url_imagen, "
+                    + "p.precio, p.disponible, p.formato, p.id_tienda, p.created_at, p.updated_at "
+                    + "FROM producto p WHERE p.id = '" + id + "';";
             Producto response = db.one(query, rs -> {
                 Producto d = new Producto();
                 d.id = rs.getLong("id");
@@ -48,15 +49,15 @@ public class ProductoController {
 
     @PostMapping("")
     public ResponseEntity<Producto> createProducto(@RequestBody Producto t) {
-        String productoExists = "SELECT id FROM producto "
-                + "WHERE codigo_barras = '" + t.codigoBarras + "' "
-                + "AND nombre = '" + t.nombre + "' "
-                + "AND descripcion = '" + t.descripcion + "' "
-                + "AND url_imagen = '" + t.urlImagen + "' "
-                + "AND precio = '" + t.precio + "' "
-                + "AND disponible = '" + t.disponible + "' "
-                + "AND formato = '" + t.formato + "' "
-                + "AND id_tienda = '" + t.idTienda + "'";
+        String productoExists = "SELECT p.id FROM producto p "
+                + "WHERE p.codigo_barras = '" + t.codigoBarras + "' "
+                + "AND p.nombre = '" + t.nombre + "' "
+                + "AND p.descripcion = '" + t.descripcion + "' "
+                + "AND p.url_imagen = '" + t.urlImagen + "' "
+                + "AND p.precio = '" + t.precio + "' "
+                + "AND p.disponible = '" + t.disponible + "' "
+                + "AND p.formato = '" + t.formato + "' "
+                + "AND p.id_tienda = '" + t.idTienda + "'";
         Producto at = db.oneOrNone(productoExists, rs -> {
             Producto a = new Producto();
             a.id = rs.getLong("id");
@@ -80,7 +81,9 @@ public class ProductoController {
 
     @GetMapping("")
     public ResponseEntity<List<Producto>> getProductos() {
-        String query = "SELECT * FROM producto";
+        String query = "SELECT p.id, p.codigo_barras, p.nombre, p.descripcion, p.url_imagen, "
+                + "p.precio, p.disponible, p.formato, p.id_tienda, p.created_at, p.updated_at "
+                + "FROM producto p";
         List<Producto> response = db.any(query, (rs) -> {
             Producto d = new Producto();
             d.id = rs.getLong("id");

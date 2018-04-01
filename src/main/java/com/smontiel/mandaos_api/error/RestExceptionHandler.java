@@ -18,7 +18,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<ApiError> handleEntityNotFound(EntityNotFoundException ex) {
-        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex);
+        Throwable throwable = ex.getCause() != null ? ex.getCause() : ex;
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, throwable);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.NOT_FOUND);
     }
 
@@ -26,5 +27,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ApiError> handleIllegalArgument(FieldCollisionException ex) {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
         return new ResponseEntity<ApiError>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ClassCastException.class)
+    protected ResponseEntity<ApiError> handleClassCast(ClassCastException ex) {
+        ex.printStackTrace(System.out);
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+        return new ResponseEntity<ApiError>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,15 +1,12 @@
 package com.smontiel.mandaos_api.direccion;
 
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
-import com.smontiel.mandaos_api.tienda.Tienda;
 import com.smontiel.simple_jdbc.SimpleJDBC;
-import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -24,7 +21,9 @@ public class DireccionController {
     @GetMapping("/{id}")
     public ResponseEntity<Direccion> getDireccion(@PathVariable String id) {
         try {
-            String query = "select * from direccion where id = " + id + ";";
+            String query = "SELECT d.id, d.calle, d.numero_interior, d.numero_exterior, d.colonia, "
+                    + "d.codigo_postal, d.localidad, d.estado, d.created_at, d.updated_at "
+                    + "FROM direccion d WHERE d.id = " + id + ";";
             Direccion response = db.one(query, rs -> {
                 Direccion d = new Direccion();
                 d.id = rs.getLong("id");
@@ -49,14 +48,14 @@ public class DireccionController {
 
     @PostMapping("")
     public ResponseEntity<Direccion> createDireccion(@RequestBody Direccion d) {
-        String direccionExists = "SELECT id FROM direccion "
-                + "WHERE calle = '" + d.calle + "' "
-                + "AND numero_interior = '" + d.numeroInterior + "' "
-                + "AND numero_exterior = '" + d.numeroExterior + "' "
-                + "AND colonia = '" + d.colonia+ "' "
-                + "AND codigo_postal = '" + d.codigoPostal + "' "
-                + "AND localidad = '" + d.localidad + "' "
-                + "AND estado = '" + d.estado + "'";
+        String direccionExists = "SELECT d.id FROM direccion d "
+                + "WHERE d.calle = '" + d.calle + "' "
+                + "AND d.numero_interior = '" + d.numeroInterior + "' "
+                + "AND d.numero_exterior = '" + d.numeroExterior + "' "
+                + "AND d.colonia = '" + d.colonia+ "' "
+                + "AND d.codigo_postal = '" + d.codigoPostal + "' "
+                + "AND d.localidad = '" + d.localidad + "' "
+                + "AND d.estado = '" + d.estado + "'";
         Direccion at = db.oneOrNone(direccionExists, rs -> {
             Direccion a = new Direccion();
             a.id = rs.getLong("id");
@@ -80,7 +79,9 @@ public class DireccionController {
 
     @GetMapping("")
     public ResponseEntity<List<Direccion>> getDirecciones() {
-        String query = "SELECT * FROM direccion";
+        String query = "SELECT d.id, d.calle, d.numero_interior, d.numero_exterior, d.colonia, "
+                + "d.codigo_postal, d.localidad, d.estado, d.created_at, d.updated_at "
+                + "FROM direccion d";
         List<Direccion> response = db.any(query, (rs) -> {
             Direccion d = new Direccion();
             d.id = rs.getLong("id");

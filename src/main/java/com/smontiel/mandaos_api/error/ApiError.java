@@ -23,7 +23,7 @@ public class ApiError {
     }
 
     public ApiError(HttpStatus status, Throwable throwable) {
-        this(status, throwable.getCause().getMessage());
+        this(status, throwable.getMessage());
     }
 
     public ApiError(HttpStatus status, String message) {

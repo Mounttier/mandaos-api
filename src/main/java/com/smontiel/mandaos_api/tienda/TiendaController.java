@@ -1,17 +1,14 @@
 package com.smontiel.mandaos_api.tienda;
 
-import com.smontiel.mandaos_api.administrador_tienda.AdministradorTienda;
 import com.smontiel.mandaos_api.administrador_tienda.AdministradorTiendaController;
 import com.smontiel.mandaos_api.direccion.DireccionController;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.simple_jdbc.SimpleJDBC;
-import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -27,7 +24,9 @@ public class TiendaController {
     @GetMapping("/{id}")
     public ResponseEntity<TiendaResponse> getTienda(@PathVariable String id) {
         try {
-            String query = "select * from tienda where id = " + id + ";";
+            String query = "SELECT t.id, t.nombre, t.descripcion, t.url_logo, t.id_direccion, "
+                    + "t.id_administrador_tienda, t.created_at, t.updated_at "
+                    + "FROM tienda t WHERE t.id = " + id + ";";
             TiendaResponse response = db.one(query, rs -> {
                 TiendaResponse d = new TiendaResponse();
                 d.id = rs.getLong("id");
@@ -52,12 +51,12 @@ public class TiendaController {
 
     @PostMapping("")
     public ResponseEntity<TiendaResponse> createTienda(@RequestBody Tienda t) {
-        String tiendaExists = "SELECT id FROM tienda "
-                + "WHERE nombre = '" + t.nombre + "' "
-                + "AND descripcion = '" + t.descripcion + "' "
-                + "AND url_logo = '" + t.urlLogo + "' "
-                + "AND id_direccion = '" + t.idDireccion + "' "
-                + "AND id_administrador_tienda = '" + t.idAdministradorTienda + "'";
+        String tiendaExists = "SELECT t.id FROM tienda t "
+                + "WHERE t.nombre = '" + t.nombre + "' "
+                + "AND t.descripcion = '" + t.descripcion + "' "
+                + "AND t.url_logo = '" + t.urlLogo + "' "
+                + "AND t.id_direccion = '" + t.idDireccion + "' "
+                + "AND t.id_administrador_tienda = '" + t.idAdministradorTienda + "'";
         Tienda at = db.oneOrNone(tiendaExists, rs -> {
             Tienda a = new Tienda();
             a.id = rs.getLong("id");
@@ -81,7 +80,9 @@ public class TiendaController {
 
     @GetMapping("")
     public ResponseEntity<List<Tienda>> getTiendas() {
-        String query = "SELECT * FROM tienda";
+        String query = "SELECT t.id, t.nombre, t.descripcion, t.url_logo, t.id_direccion, "
+                + "t.id_administrador_tienda, t.created_at, t.updated_at "
+                + "FROM tienda t";
         List<Tienda> response = db.any(query, (rs) -> {
             Tienda d = new Tienda();
             d.id = rs.getLong("id");

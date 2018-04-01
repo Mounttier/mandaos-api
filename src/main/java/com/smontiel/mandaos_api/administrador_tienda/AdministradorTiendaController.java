@@ -1,16 +1,13 @@
 package com.smontiel.mandaos_api.administrador_tienda;
 
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
-import com.smontiel.mandaos_api.error.FieldCollisionException;
 import com.smontiel.mandaos_api.usuario.UsuarioController;
 import com.smontiel.simple_jdbc.SimpleJDBC;
-import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -24,7 +21,8 @@ public class AdministradorTiendaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AdministradorTiendaResponse> getAdministradorTienda(@PathVariable String id) {
-        String query = "select * from administrador_tienda where id = " + id + ";";
+        String query = "SELECT a.id, a.id_usuario, a.telefono, a.created_at, a.updated_at "
+                + "FROM administrador_tienda a WHERE a.id = " + id + ";";
         try {
             AdministradorTiendaResponse response = db.one(query, rs -> {
                 AdministradorTiendaResponse d = new AdministradorTiendaResponse();
@@ -46,17 +44,14 @@ public class AdministradorTiendaController {
 
     @PostMapping("")
     public ResponseEntity<AdministradorTiendaResponse> createAdministradorTienda(@RequestBody AdministradorTienda rt) {
-        String adminExists = "SELECT id, id_usuario, telefono FROM administrador_tienda "
-                + "WHERE id_usuario = '" + rt.idUsuario
-                + "' AND telefono = '" + rt.telefono + "'";
-        AdministradorTienda at = db.oneOrNone(adminExists, new ThrowingFunction<ResultSet, AdministradorTienda>() {
-            @Override
-            public AdministradorTienda apply(ResultSet rs) throws Exception {
-                AdministradorTienda a = new AdministradorTienda();
-                a.id = rs.getLong("id");
-                a.telefono = rs.getString("telefono");
-                return a;
-            }
+        String adminExists = "SELECT a.id, a.id_usuario, a.telefono FROM administrador_tienda a "
+                + "WHERE a.id_usuario = '" + rt.idUsuario + "' "
+                + "AND a.telefono = '" + rt.telefono + "'";
+        AdministradorTienda at = db.oneOrNone(adminExists, rs -> {
+            AdministradorTienda a = new AdministradorTienda();
+            a.id = rs.getLong("id");
+            a.telefono = rs.getString("telefono");
+            return a;
         });
         if (at != null) return getAdministradorTienda(String.valueOf(at.id));
 
@@ -75,7 +70,8 @@ public class AdministradorTiendaController {
 
     @GetMapping("")
     public ResponseEntity<List<AdministradorTiendaResponse>> getAdministradoresDeTienda() {
-        String query = "SELECT * FROM administrador_tienda";
+        String query = "SELECT a.id, a.id_usuario, a.telefono, a.created_at, a.updated_at "
+                + "FROM administrador_tienda a";
         List<AdministradorTiendaResponse> response = db.any(query, (rs) -> {
             AdministradorTiendaResponse d = new AdministradorTiendaResponse();
             d.id = rs.getLong("id");

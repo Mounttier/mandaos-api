@@ -1,17 +1,13 @@
 package com.smontiel.mandaos_api.comprador;
 
-import com.smontiel.mandaos_api.administrador_tienda.AdministradorTienda;
-import com.smontiel.mandaos_api.administrador_tienda.AdministradorTiendaResponse;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.mandaos_api.usuario.UsuarioController;
 import com.smontiel.simple_jdbc.SimpleJDBC;
-import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
 import java.util.List;
 
 /**
@@ -25,7 +21,9 @@ public class CompradorController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CompradorResponse> getComprador(@PathVariable String id) {
-        String query = "select * from comprador where id = " + id + ";";
+        String query = "SELECT c.id, c.id_usuario, c.telefono, c.tipo_vehiculo, "
+                + "c.created_at, c.updated_at "
+                + "FROM comprador c WHERE c.id = " + id + ";";
         try {
             CompradorResponse response = db.one(query, rs -> {
                 CompradorResponse d = new CompradorResponse();
@@ -42,16 +40,16 @@ public class CompradorController {
             });
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            throw new EntityNotFoundException(e.getCause());
+            throw new EntityNotFoundException(e);
         }
     }
 
     @PostMapping("")
     public ResponseEntity<CompradorResponse> createComprador(@RequestBody Comprador rt) {
-        String compradorExists = "SELECT id, id_usuario, telefono, tipo_vehiculo FROM comprador "
-                + "WHERE id_usuario = '" + rt.idUsuario + "' "
-                + "AND telefono = '" + rt.telefono + "' "
-                + "AND tipo_vehiculo = '" + rt.tipoVehiculo + "'";
+        String compradorExists = "SELECT c.id, c.id_usuario, c.telefono, c.tipo_vehiculo FROM comprador c "
+                + "WHERE c.id_usuario = '" + rt.idUsuario + "' "
+                + "AND c.telefono = '" + rt.telefono + "' "
+                + "AND c.tipo_vehiculo = '" + rt.tipoVehiculo + "'";
         Comprador at = db.oneOrNone(compradorExists, rs -> {
             Comprador a = new Comprador();
             a.id = rs.getLong("id");
@@ -74,7 +72,9 @@ public class CompradorController {
 
     @GetMapping("")
     public ResponseEntity<List<CompradorResponse>> getCompradores() {
-        String query = "SELECT * FROM comprador";
+        String query = "SELECT c.id, c.id_usuario, c.telefono, c.tipo_vehiculo, "
+                + "c.created_at, c.updated_at "
+                + "FROM comprador c";
         List<CompradorResponse> response = db.any(query, (rs) -> {
             CompradorResponse d = new CompradorResponse();
             d.id = rs.getLong("id");

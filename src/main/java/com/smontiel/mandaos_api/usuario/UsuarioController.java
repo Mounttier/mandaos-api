@@ -1,6 +1,5 @@
 package com.smontiel.mandaos_api.usuario;
 
-import com.smontiel.mandaos_api.administrador_tienda.AdministradorTienda;
 import com.smontiel.mandaos_api.direccion.DireccionController;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.mandaos_api.error.FieldCollisionException;
@@ -25,7 +24,9 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable String id) {
-        String query = "select * from usuario where id = " + id + ";";
+        String query = "SELECT u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.url_foto, u.id_direccion, "
+                + "u.e_mail, u.created_at, u.updated_at "
+                + "FROM usuario u WHERE u.id = " + id + ";";
         try {
             UsuarioResponse response = db.one(query, rs -> {
                 UsuarioResponse d = new UsuarioResponse();
@@ -43,14 +44,14 @@ public class UsuarioController {
             });
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            throw new EntityNotFoundException(e.getCause());
+            throw new EntityNotFoundException(e);
         }
     }
 
     @PostMapping("")
     public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody Usuario u) {
         try {
-            String checkEmail = "SELECT e_mail FROM usuario WHERE e_mail = '" + u.email + "'";
+            String checkEmail = "SELECT u.e_mail FROM usuario u WHERE u.e_mail = '" + u.email + "'";
             String email = db.oneOrNone(checkEmail, new ThrowingFunction<ResultSet, String>() {
                 @Override
                 public String apply(ResultSet rs) throws Exception {
@@ -79,7 +80,9 @@ public class UsuarioController {
 
     @GetMapping("")
     public ResponseEntity<List<UsuarioResponse>> getUsuarios() {
-        String query = "SELECT * FROM usuario";
+        String query = "SELECT u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.url_foto, u.id_direccion, "
+                + "u.e_mail, u.created_at, u.updated_at "
+                + "FROM usuario u";
         List<UsuarioResponse> response = db.any(query, (rs) -> {
             UsuarioResponse d = new UsuarioResponse();
             d.id = rs.getLong("id");
