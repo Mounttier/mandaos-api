@@ -1,7 +1,7 @@
 package com.smontiel.mandaos_api;
 
 import com.smontiel.simple_jdbc.SimpleJDBC;
-import org.postgresql.ds.PGSimpleDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,10 +13,10 @@ public class AppConfiguration {
 
     @Bean
     public SimpleJDBC simpleJDBC() {
-        String url = System.getenv("MANDAOS_POSTGRESQL_URL");
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-        ds.setURL(url);
+        String jdbcUrl = System.getenv("MANDAOS_POSTGRESQL_URL");
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setJdbcUrl(jdbcUrl);
 
-        return SimpleJDBC.from(ds);
+        return SimpleJDBC.from(hikariDataSource);
     }
 }
