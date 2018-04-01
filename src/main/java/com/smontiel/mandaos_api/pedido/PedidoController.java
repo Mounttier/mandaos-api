@@ -3,6 +3,8 @@ package com.smontiel.mandaos_api.pedido;
 import com.smontiel.mandaos_api.comprador.CompradorController;
 import com.smontiel.mandaos_api.direccion.DireccionController;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
+import com.smontiel.mandaos_api.item_pedido.ItemPedidoResponse;
+import com.smontiel.mandaos_api.producto.ProductoController;
 import com.smontiel.mandaos_api.usuario.UsuarioController;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ public class PedidoController {
     @Autowired CompradorController compradorController;
     @Autowired DireccionController direccionController;
     @Autowired UsuarioController usuarioController;
+    @Autowired ProductoController productoController;
 
     @GetMapping("/{id}")
     public ResponseEntity<PedidoResponse> getPedido(@PathVariable String id) {
@@ -99,5 +102,27 @@ public class PedidoController {
         });
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{idPedido}/items")
+    public ResponseEntity<List<ItemPedidoResponse>> getItems(@PathVariable String idPedido) {
+        String query = "SELECT i.id, i.cantidad, i.id_producto, i.id_pedido, "
+                + "i.created_at, i.updated_at "
+                + "FROM item_pedido i WHERE i.id_pedido = '" + idPedido + "'";
+        List<ItemPedidoResponse> items = db.any(query, (rs) -> {
+            ItemPedidoResponse d = new ItemPedidoResponse();
+            d.id = rs.getLong("id");
+            d.cantidad = rs.getInt("cantidad");
+            String idProducto = rs.getString("id_producto");
+            d.producto = productoController.getProducto(idProducto).getBody();
+            d.idPedido = rs.getLong("id_pedido");
+
+            d.createdAt = rs.getString("created_at");
+            d.updatedAt = rs.getString("updated_at");
+
+            return d;
+        });
+
+        return new ResponseEntity<>(items, HttpStatus.OK);
     }
 }

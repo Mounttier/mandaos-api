@@ -3,6 +3,8 @@ package com.smontiel.mandaos_api.tienda;
 import com.smontiel.mandaos_api.administrador_tienda.AdministradorTiendaController;
 import com.smontiel.mandaos_api.direccion.DireccionController;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
+import com.smontiel.mandaos_api.producto.Formato;
+import com.smontiel.mandaos_api.producto.Producto;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -91,6 +93,7 @@ public class TiendaController {
             d.urlLogo = rs.getString("url_logo");
             d.idDireccion = rs.getLong("id_direccion");
             d.idAdministradorTienda = rs.getLong("id_administrador_tienda");
+
             d.createdAt = rs.getString("created_at");
             d.updatedAt = rs.getString("updated_at");
 
@@ -98,5 +101,32 @@ public class TiendaController {
         });
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // TODO: 1/04/18 Revisit this query
+    @GetMapping("/{idTienda}/productos")
+    public ResponseEntity<List<Producto>> getProductos(@PathVariable String idTienda) {
+        String query = "SELECT p.id, p.codigo_barras, p.nombre, p.descripcion, p.url_imagen, "
+                + "p.precio, p.disponible, p.formato, p.id_tienda, p.created_at, p.updated_at "
+                + "FROM producto p WHERE p.id_tienda = '" + idTienda +"'";
+        List<Producto> productos = db.any(query, (rs) -> {
+            Producto d = new Producto();
+            d.id = rs.getLong("id");
+            d.codigoBarras = rs.getString("codigo_barras");
+            d.nombre = rs.getString("nombre");
+            d.descripcion = rs.getString("descripcion");
+            d.urlImagen = rs.getString("url_imagen");
+            d.precio = rs.getLong("precio");
+            d.disponible = rs.getBoolean("disponible");
+            d.formato = Formato.valueOf(rs.getString("formato"));
+            d.idTienda = rs.getLong("id_tienda");
+
+            d.createdAt = rs.getString("created_at");
+            d.updatedAt = rs.getString("updated_at");
+
+            return d;
+        });
+
+        return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 }

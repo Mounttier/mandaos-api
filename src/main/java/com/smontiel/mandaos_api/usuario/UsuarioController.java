@@ -1,8 +1,12 @@
 package com.smontiel.mandaos_api.usuario;
 
+import com.smontiel.mandaos_api.comprador.CompradorController;
 import com.smontiel.mandaos_api.direccion.DireccionController;
 import com.smontiel.mandaos_api.error.EntityNotFoundException;
 import com.smontiel.mandaos_api.error.FieldCollisionException;
+import com.smontiel.mandaos_api.pedido.EstadoPedido;
+import com.smontiel.mandaos_api.pedido.PedidoResponse;
+import com.smontiel.mandaos_api.tienda.Tienda;
 import com.smontiel.simple_jdbc.SimpleJDBC;
 import com.smontiel.simple_jdbc.ThrowingFunction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,8 @@ import java.util.List;
 public class UsuarioController {
     @Autowired SimpleJDBC db;
     @Autowired DireccionController direccionController;
+    @Autowired CompradorController compradorController;
+    @Autowired UsuarioController usuarioController;
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable String id) {
@@ -92,6 +98,55 @@ public class UsuarioController {
             d.urlFoto = rs.getString("url_foto");
             d.email = rs.getString("e_mail");
             d.direccion = direccionController.getDireccion(rs.getString("id_direccion")).getBody();
+            d.createdAt = rs.getString("created_at");
+            d.updatedAt = rs.getString("updated_at");
+
+            return d;
+        });
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // TODO: 1/04/18 Revisit this query
+    @GetMapping("/{idUsuario}/tiendas")
+    public ResponseEntity<List<Tienda>> getTiendas(@PathVariable String idUsuario) {
+        String query = "SELECT t.id, t.nombre, t.descripcion, t.url_logo, t.id_direccion, "
+                + "t.id_administrador_tienda, t.created_at, t.updated_at "
+                + "FROM tienda t INNER JOIN administrador_tienda a ON t.id_administrador_tienda = a.id "
+                + "INNER JOIN usuario u ON a.id_usuario = u.id "
+                + "WHERE u.id = '" + idUsuario +"'";
+        List<Tienda> response = db.any(query, (rs) -> {
+            Tienda d = new Tienda();
+            d.id = rs.getLong("id");
+            d.nombre = rs.getString("nombre");
+            d.descripcion = rs.getString("descripcion");
+            d.urlLogo = rs.getString("url_logo");
+            d.idDireccion = rs.getLong("id_direccion");
+            d.idAdministradorTienda = rs.getLong("id_administrador_tienda");
+
+            d.createdAt = rs.getString("created_at");
+            d.updatedAt = rs.getString("updated_at");
+
+            return d;
+        });
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{idUsuario}/pedidos")
+    public ResponseEntity<List<PedidoResponse>> getPedidos(@PathVariable String idUsuario) {
+        String query = "SELECT p.id, p.estado, p.id_comprador, p.id_direccion_envio, p.id_usuario, "
+                + "p.created_at, p.updated_at FROM pedido p "
+                + "WHERE p.id_usuario = '" + idUsuario + "'";
+        List<PedidoResponse> response = db.any(query, (rs) -> {
+            PedidoResponse d = new PedidoResponse();
+            d.id = rs.getLong("id");
+            d.estado = EstadoPedido.valueOf(rs.getString("estado"));
+            d.comprador = compradorController.getComprador(rs.getString("id_comprador")).getBody();
+            String idDireccion = rs.getString("id_direccion_envio");
+            d.direccionEnvio = direccionController.getDireccion(idDireccion).getBody();
+            d.usuario = usuarioController.getUsuario(rs.getString("id_usuario")).getBody();
+
             d.createdAt = rs.getString("created_at");
             d.updatedAt = rs.getString("updated_at");
 
