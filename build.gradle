@@ -34,7 +34,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-security")
+    //compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-web")
 
     compile 'com.github.SMontiel:SimpleJDBC:0.1.0'
@@ -45,4 +45,3 @@ dependencies {
     testCompile('org.springframework.security:spring-security-test')
     testCompile('com.jayway.jsonpath:json-path')
 }
-
