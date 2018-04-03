@@ -1,12 +1,12 @@
-package hello;
+package com.smontiel.mandaos_api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class MandaosApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(MandaosApplication.class, args);
     }
 }
