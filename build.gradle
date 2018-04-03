@@ -18,11 +18,11 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.smontiel'
-version = '0.0.1'
+version = '0.0.2'
 
 bootJar {
     baseName = 'mandaos-api'
-    version =  '0.0.1'
+    version =  '0.0.2'
 }
 
 repositories {
