@@ -46,6 +46,6 @@ public class AppConfiguration {
 
         HikariDataSource hikariDataSource = new HikariDataSource(config);*/
 
-        return SimpleJDBC.from(hikariDataSource);
+        return SimpleJDBC.from(dataSource());
     }
 }
