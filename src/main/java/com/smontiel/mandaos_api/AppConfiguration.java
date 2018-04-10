@@ -15,25 +15,9 @@ import java.net.URISyntaxException;
 @Configuration
 public class AppConfiguration {
 
-	@Bean
-	public HikariDataSource dataSource() throws URISyntaxException {
-		URI dbUri = new URI(System.getenv("MANDAOS_POSTGRESQL_URL"));
-
-        String username = dbUri.getUserInfo().split(":")[0];
-        String password = dbUri.getUserInfo().split(":")[1];
-        String jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(jdbcUrl);
-        config.setUsername(username);
-        config.setPassword(password);
-
-        return new HikariDataSource(config);
-	}
-
     @Bean
-    public SimpleJDBC simpleJDBC(HikariDataSource hikariDataSource) {
-    	/*URI dbUri = new URI(System.getenv("MANDAOS_POSTGRESQL_URL"));
+    public SimpleJDBC simpleJDBC() throws URISyntaxException {
+    	URI dbUri = new URI(System.getenv("MANDAOS_POSTGRESQL_URL"));
 
         String username = dbUri.getUserInfo().split(":")[0];
         String password = dbUri.getUserInfo().split(":")[1];
@@ -44,8 +28,8 @@ public class AppConfiguration {
         config.setUsername(username);
         config.setPassword(password);
 
-        HikariDataSource hikariDataSource = new HikariDataSource(config);*/
+        HikariDataSource hikariDataSource = new HikariDataSource(config);
 
-        return SimpleJDBC.from(dataSource());
+        return SimpleJDBC.from(hikariDataSource);
     }
 }
